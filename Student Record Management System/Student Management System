@@ -1,0 +1,460 @@
+////////////////////////////////////////////////////////////////////////
+///
+///     Project Name :- Student Record Management System
+/// 
+///     Description  :- Java-based Student Management System using File 
+///                     Handling to perform CRUD operations on student 
+///                     records stored in a CSV file.
+///     
+///     Author       :- Sahil Subhash Solat
+/// 
+///     Date         :- 10/3/2026
+/// 
+////////////////////////////////////////////////////////////////////////
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.*;
+
+
+class StudentDetails
+{
+    private String Name;
+    private int Roll_no;
+    private Double Parsentage;
+
+    public StudentDetails(String a, int b, Double c)
+    {
+        this.Name = a;
+        this.Roll_no = b;
+        this.Parsentage = c;
+    }
+
+    public String getName()
+    {
+        return this.Name;
+    }
+
+    public int getRoll_no()
+    {
+        return this.Roll_no;
+    }
+
+    public double getMarks()
+    {
+        return this.Parsentage;
+    }
+
+    public String toString()
+    {
+        return Name + " | " + Roll_no + " | " + Parsentage;
+    }
+
+}
+
+class opration
+{
+    ArrayList <StudentDetails> database = new ArrayList<StudentDetails>();
+    String Filename = "Student_Details.csv";
+    File fobj = new File(Filename);
+
+    public boolean isRollNoExists(int RollNo)
+    {
+            ArrayList <String> list = new ArrayList<>();
+
+            try
+            {
+                Scanner fileScanner = new Scanner(new File(Filename));
+
+                fileScanner.nextLine();
+
+                while(fileScanner.hasNextLine())
+                {
+                    String line = fileScanner.nextLine();
+                    String data[] = line.split(",");
+
+                    int roll = Integer.parseInt(data[1]);
+
+                    if(roll == RollNo)
+                    {
+                        return true;
+                    }
+                }
+                
+            }
+            catch(Exception eobj)
+            {
+                System.out.println("Error Occured");
+            }
+            return false;
+    }
+
+    
+
+    public void AddStudent()
+    {
+        System.out.println("-----------------------------------------------");
+        System.out.println("--------------Enter valid input----------------");
+        System.out.println("-----------------------------------------------");
+
+        Scanner sobj = new Scanner(System.in);
+
+        String sname = null;
+        int r_no = 0;
+        double Parsentage = 0.0;
+
+        try(FileWriter fwobj = new FileWriter(fobj,true))
+        {
+            while (true) 
+            {
+                System.out.println("Please enter the student name : ");
+                sname = sobj.nextLine();
+
+                if((sname.matches("[a-zA-Z]+")))
+                {
+                    break;
+                }
+                else
+                {
+                    System.out.println("Invaild Input retry again");
+                }
+            }
+
+            while (true)
+            {
+                System.out.println("Enter the Roll number : ");
+                r_no = sobj.nextInt();
+
+                if((r_no > 0))
+                {
+                    
+                    if(isRollNoExists(r_no))
+                    {
+                        System.out.println("Roll number already present..");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    
+                }  
+                else
+                {
+                    System.out.println("Invaild Input retry again");
+                }
+            }
+
+            while (true) 
+            {
+                System.out.println("Please Enter the persentage : ");
+                Parsentage = sobj.nextDouble();
+
+                if(Parsentage >= 0 && Parsentage <= 100)
+                {
+                    break;
+                }
+                else
+                {
+                    System.out.println("Invaild Input retry again");
+                }
+            }
+
+            StudentDetails s = new StudentDetails(sname, r_no, Parsentage);
+            database.add(s); 
+            
+            if(fobj.length() == 0)
+            {
+                fwobj.write("Student Name, Roll_No, Persentage\n");
+            }
+            
+            fwobj.write(s.getName()+","+s.getRoll_no()+","+s.getMarks()+"\n");
+            
+            
+            System.out.println("---------Student Added Successfully------------");
+        }
+        catch(Exception eobj)
+        {
+            System.out.println("Try occuress the error");
+        }           
+
+    }
+
+
+    public void DisplayStudent()
+    {
+        char Bufffer[] = new char[1024];
+        int iRet = 0;
+        String FileName = "Student_Details.csv";
+
+        File fobj = new File(FileName);
+        
+        if(!fobj.exists() || fobj.length() == 0)
+        {
+           
+                System.out.println("-----------------------------------------------");
+                System.out.println("--------------Nothing to display---------------");
+                System.out.println("-----------------------------------------------"); 
+                return; 
+        }
+
+            try(FileReader frobj = new FileReader(fobj))
+            {
+                while ((iRet = frobj.read(Bufffer)) != -1) 
+                {
+                    System.out.println(new String(Bufffer,0,iRet));    
+                }
+            }
+            catch(Exception eobj)
+            {
+                System.out.println("Error is occures in code");
+            }
+
+            System.out.println("-----------------------------------------------");               
+    }
+
+    public void SearchStudent()
+    {
+        if(fobj.length() == 0)
+        {
+            System.out.println("-----------------------------------------------");
+            System.out.println("--------------Nothing to display---------------");
+            System.out.println("-----------------------------------------------"); 
+            return;           
+        }
+
+        int Id;
+        Scanner sobj = new Scanner(System.in);
+
+        while (true)
+        {
+            System.out.println("Enter the Roll number to search : ");
+            Id = sobj.nextInt();
+
+            if(Id > 0)
+            {
+                break;
+            }  
+            else
+            {
+                System.out.println("Invalid Input retry again");
+            }
+        }
+
+        try
+        {
+            Scanner fileScanner = new Scanner(new File(Filename));
+
+            fileScanner.nextLine(); 
+
+            while (fileScanner.hasNextLine()) 
+            {
+                String line = fileScanner.nextLine();
+                String data[] = line.split(",");
+
+                if(data.length > 1)
+                {
+                    int roll = Integer.parseInt(data[1]);
+
+                    if(roll == Id)
+                    {
+                        System.out.println("Student Found :");
+                        System.out.println("Name : " + data[0]);
+                        System.out.println("Roll : " + data[1]);
+                        System.out.println("Percentage : " + data[2]);
+                        System.out.println("-----------------------------------------------"); 
+                        return;
+                    }
+                }
+            }
+
+            System.out.println("Student not Found");
+            System.out.println("-----------------------------------------------"); 
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error while searching student");
+        }
+    }
+
+    public void update()
+    {
+        ArrayList<String> list = new ArrayList<>();
+
+        if(fobj.length() == 0)
+        {
+            System.out.println("No Records Available");
+            return;
+        }
+
+        Scanner sobj = new Scanner(System.in);
+        int Id;
+
+        System.out.println("Enter Roll number to update : ");
+        Id = sobj.nextInt();
+        sobj.nextLine();
+
+        try
+        {
+            Scanner fileScanner = new Scanner(new File(Filename));
+
+            list.add(fileScanner.nextLine());   // header save
+
+            while(fileScanner.hasNextLine())
+            {
+                String line = fileScanner.nextLine();
+                String data[] = line.split(",");
+
+                int roll = Integer.parseInt(data[1]);
+
+                if(roll == Id)
+                {
+                    System.out.println("Enter new name : ");
+                    String name = sobj.nextLine();
+
+                    System.out.println("Enter new percentage : ");
+                    double per = sobj.nextDouble();
+
+                    line = name + "," + roll + "," + per;
+                }
+
+                list.add(line);
+            }
+
+            FileWriter fw = new FileWriter(Filename); // overwrite file
+
+            for(String s : list)
+            {
+                fw.write(s + "\n");
+            }
+
+            fw.close();
+
+            System.out.println("--------Student Updated Successfully-----------");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error while updating");
+        }
+    }
+
+    public void DeleteStudent()
+    {
+        ArrayList<String> list = new ArrayList<>();
+
+        if(fobj.length() == 0)
+        {
+            System.out.println("No Records Available");
+            return;
+        }
+
+        Scanner sobj = new Scanner(System.in);
+        int Id;
+
+        System.out.println("Enter Roll number to delete : ");
+        Id = sobj.nextInt();
+        
+
+        try(Scanner fileScanner = new Scanner(new File(Filename)))
+        {
+
+            if(fileScanner.hasNextLine())
+            {
+                list.add(fileScanner.nextLine());
+            }
+            
+
+            while(fileScanner.hasNextLine())
+            {
+                String line = fileScanner.nextLine();
+                String data[] = line.split(",");
+
+                int roll = Integer.parseInt(data[1]);
+
+                if(roll == Id)
+                {
+                    continue;
+                }
+                list.add(line);
+                               
+            }
+
+            fileScanner.close();
+            FileWriter fw = new FileWriter(Filename); // overwrite file
+
+            for(String s : list)
+            {
+                fw.write(s);
+                fw.write("\n");
+            }
+
+            fw.close();
+
+            System.out.println("--------Student Deleted Successfully-----------");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error while updating");
+        }
+    }
+}
+class Student
+{
+    public static void main(String A[])
+    {
+        System.out.println("-------------------------------------------");
+        System.out.println("Welcom to Student Record Management System ");
+        System.out.println("-------------------------------------------");
+
+        opration oobj = new opration();
+
+        Scanner sobj = new Scanner(System.in);
+
+        int iChoise = 0;
+
+        do 
+        {
+            System.out.println("1 : Add the Student");    
+            System.out.println("2 : Show all Student");    
+            System.out.println("3 : Search the Student by Roll number");
+            System.out.println("4 : Update the Student"); 
+            System.out.println("5 : Delete the student");   
+            System.out.println("6 : Exit the application");
+
+            iChoise = sobj.nextInt();
+            
+            switch (iChoise) 
+            {
+                case 1 :
+                    oobj.AddStudent();
+                    break;
+
+                case 2 :
+                    oobj.DisplayStudent();
+                    break;
+
+                case 3 :
+                    oobj.SearchStudent();
+                    break;
+
+                case 4 :
+                    oobj.update();
+                    break;
+
+                case 5 :
+                    oobj.DeleteStudent();
+                    break;
+
+                case 6 :
+                    System.out.println("----------------------------------------------------------"); 
+                    System.out.println("Thanku to visit the Student Record Management System");
+                    System.out.println("----------------------------------------------------------"); 
+                    break;
+            
+                default:
+                    System.out.println("Please enter vaild input");
+                    break;
+            }
+        } while (iChoise != 6);
+    }
+}
